@@ -101,20 +101,22 @@ export function ItemDataDialog({
               const parsedOwees = Object.fromEntries(
                 Object.entries(owees).filter(([_, amount]) => amount > 0)
               )
-              const newItems = item.name === '' ?
-              // New item
-              [
-                ...group.items,
-                { name, owees: parsedOwees, owers }
-              ] :
-              // Edit existing item
-              [
-                ...group.items.map(i => {
-                  if (i.name !== item.name) return i
-                  return { name, owees: parsedOwees, owers }
-                }),
-              ]
+              const isNewItem = item.name === ''
+              const newItems = isNewItem ?
+                [
+                  ...group.items,
+                  { name, owees: parsedOwees, owers }
+                ] :
+                [ // Editing existing item
+                  ...group.items.map(i => {
+                    if (i.name !== item.name) return i
+                    return { name, owees: parsedOwees, owers }
+                  }),
+                ]
               db.groups.update(group.id, { items: newItems })
+              if (isNewItem) {
+                reset()
+              }
               toast.success(`Successfully saved all changes`)
             }}>Save Changes</Button>
           </DialogFooter>
