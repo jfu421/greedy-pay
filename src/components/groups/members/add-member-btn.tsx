@@ -52,6 +52,7 @@ export function AddMemberButton({
             db.groups.update(group.id, {
               members: [...group.members, name].sort()
             })
+            setName('')
             toast.success(`Successfully added ${name} to the group`)
           }}>Add</Button>
         </DialogFooter>
