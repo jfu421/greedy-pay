@@ -14,7 +14,7 @@ export function GroupList({ groups, selected }: { groups: Group[], selected?: nu
               index > 0 ? 'border-t' : '',
               group.id === selected ? 'bg-accent-foreground/8' : ''
             )}
-            onClick={_ => nav({ to: `/${group.id}` })}
+            onClick={_ => nav({ to: '.', search: { groupId: group.id } })}
           >
             <h3 className='font-semibold text-lg'>{group.name}</h3>
             <div className='text-sm'>Created {group.created.toLocaleString()}</div>
