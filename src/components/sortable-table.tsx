@@ -10,7 +10,7 @@ import {
   type DraggableAttributes,
   type DraggableSyntheticListeners,
 } from '@dnd-kit/core'
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import {
   SortableContext,
   sortableKeyboardCoordinates,
@@ -30,7 +30,9 @@ import { cn } from '@/lib/utils'
 
 /**
  * Makes the `SortableTableRow`s inside it rearrangeable. Must wrap the whole
- * table, as it renders elements that are not allowed inside one
+ * table, as it renders elements that are not allowed inside one.
+ * Rows can only be dragged within their parent (e.g. the table body), so the
+ * parent must contain nothing but the sortable rows
  */
 export function SortableList({ ids, onMove, children }: React.PropsWithChildren & {
   ids: string[],
@@ -53,7 +55,7 @@ export function SortableList({ ids, onMove, children }: React.PropsWithChildren 
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
-      modifiers={[restrictToVerticalAxis]}
+      modifiers={[restrictToVerticalAxis, restrictToParentElement]}
       onDragEnd={({ active, over }) => {
         if (!over || active.id === over.id) return
         onMove(ids.indexOf(String(active.id)), ids.indexOf(String(over.id)))

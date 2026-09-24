@@ -9,6 +9,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -129,6 +130,9 @@ export function ItemsTable({ group }: { group: Group }) {
                     }
                   </SortableTableRow>
                 ))}
+              </TableBody>
+              {/* Kept out of the body, which must only hold the draggable rows */}
+              <TableFooter className='bg-transparent font-normal'>
                 {table.getFooterGroups().map(footerGroup => (
                   <TableRow key={footerGroup.id}>
                     {
@@ -143,7 +147,7 @@ export function ItemsTable({ group }: { group: Group }) {
                     }
                   </TableRow>
                 ))}
-              </TableBody>
+              </TableFooter>
             </> :
             <TableBody>
               <TableRow>
