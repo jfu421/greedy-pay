@@ -1,7 +1,5 @@
-import { Trash2 } from 'lucide-react'
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogFooter,
@@ -11,18 +9,20 @@ import {
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import db, { type Group, type Item } from '@/db'
-import { cn } from '@/lib/utils'
 
-export function DeleteItemButton({
-  className,
+export function DeleteItemDialog({
   group,
-  item
-}: React.ComponentProps<'svg'> & { group: Group, item: Item }) {
+  item,
+  open,
+  onOpenChange,
+}: {
+  group: Group,
+  item: Item,
+  open: boolean,
+  onOpenChange: (open: boolean) => void,
+}) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Trash2 className={cn(className, 'hover:text-muted-foreground cursor-pointer my-1')} />
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[600px] max-h-11/12 flex flex-col'>
         <DialogHeader>
           <DialogTitle>Delete Item <em>{item.name}</em></DialogTitle>

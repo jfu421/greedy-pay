@@ -14,23 +14,27 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-import type { Group, Item } from '@/db'
+import db, { type Group, type Item } from '@/db'
 import { MemberItemSummary } from './member-item-summary'
 import { cn, formatCurrency } from '@/lib/utils'
-import { EditItemButton } from './edit-item-btn'
+import { ItemDataDialog } from './item-data-dialog'
 import { Fragment } from 'react/jsx-runtime'
-import { DeleteItemButton } from './delete-item-btn'
+import { DeleteItemDialog } from './delete-item-dialog'
+import { RowHandle, SortableList, SortableTableRow } from '@/components/sortable-table'
+import { useOptimisticOrder } from '@/hooks/use-optimistic-order'
+import { useState } from 'react'
 
 export function ItemsTable({ group }: { group: Group }) {
+  const [items, moveItem] = useOptimisticOrder(
+    group.items,
+    items => db.groups.update(group.id, { items })
+  )
   const columns: ColumnDef<Item>[] = [
     {
       id: 'actions',
       header: _ => <TableHead className='bg-accent/50 w-0'></TableHead>, // w-0 minimises column width
-      cell: ({ row }) => <TableCell className='bg-accent/50 pl-4'>
-        <div className='flex gap-3 items-center'>
-          <EditItemButton group={group} item={row.original} className='size-5' />
-          <DeleteItemButton group={group} item={row.original} className='size-5' />
-        </div>
+      cell: ({ row }) => <TableCell className='bg-accent/50 pl-3'>
+        <ItemActions group={group} item={row.original} />
       </TableCell>,
       footer: () => <TableCell className='bg-accent/50' />
     },
@@ -77,73 +81,95 @@ export function ItemsTable({ group }: { group: Group }) {
     } as ColumnDef<Item>))
   ]
   const table = useReactTable({
-    data: group.items,
+    data: items,
     columns,
     getRowId: item => item.name,
     getCoreRowModel: getCoreRowModel(),
   })
 
   return (
-    <div className='max-w-full'>
-      <Table className='overflow-auto'>
-        {table.getRowModel().rows?.length ?
-          <>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {
-                    headerGroup.headers.map(header => (
-                      <Fragment key={header.id}>
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                      </Fragment>
-                    ))
-                  }
-                </TableRow>
-              ))}
-            </TableHeader>
+    <SortableList ids={items.map(item => item.name)} onMove={moveItem}>
+      <div className='max-w-full'>
+        <Table className='overflow-auto'>
+          {table.getRowModel().rows?.length ?
+            <>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {
+                      headerGroup.headers.map(header => (
+                        <Fragment key={header.id}>
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                        </Fragment>
+                      ))
+                    }
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows.map((row) => (
+                  <SortableTableRow key={row.id} id={row.id}>
+                    {
+                      row.getVisibleCells().map(cell => (
+                        <Fragment key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </Fragment>
+                      ))
+                    }
+                  </SortableTableRow>
+                ))}
+                {table.getFooterGroups().map(footerGroup => (
+                  <TableRow key={footerGroup.id}>
+                    {
+                      footerGroup.headers.map(header => (
+                        <Fragment key={header.id}>
+                          {flexRender(
+                            header.column.columnDef.footer,
+                            header.getContext()
+                          )}
+                        </Fragment>
+                      ))
+                    }
+                  </TableRow>
+                ))}
+              </TableBody>
+            </> :
             <TableBody>
-              {table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {
-                    row.getVisibleCells().map(cell => (
-                      <Fragment key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </Fragment>
-                    ))
-                  }
-                </TableRow>
-              ))}
-              {table.getFooterGroups().map(footerGroup => (
-                <TableRow key={footerGroup.id}>
-                  {
-                    footerGroup.headers.map(header => (
-                      <Fragment key={header.id}>
-                        {flexRender(
-                          header.column.columnDef.footer,
-                          header.getContext()
-                        )}
-                      </Fragment>
-                    ))
-                  }
-                </TableRow>
-              ))}
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  This group currently has no items.
+                </TableCell>
+              </TableRow>
             </TableBody>
-          </> :
-          <TableBody>
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                This group currently has no items.
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        }
-      </Table>
-    </div>
+          }
+        </Table>
+      </div>
+    </SortableList>
+  )
+}
+
+function ItemActions({ group, item }: { group: Group, item: Item }) {
+  const [dialog, setDialog] = useState<'edit' | 'delete'>()
+  const setOpen = (which: 'edit' | 'delete') =>
+    (open: boolean) => setDialog(open ? which : undefined)
+  return (
+    <>
+      <RowHandle label={item.name}
+        onEdit={() => setDialog('edit')}
+        onDelete={() => setDialog('delete')}
+      />
+      <ItemDataDialog title={<>Edit Item <em>{item.name}</em></>} group={group} item={item}
+        open={dialog === 'edit'} onOpenChange={setOpen('edit')}
+      />
+      <DeleteItemDialog group={group} item={item}
+        open={dialog === 'delete'} onOpenChange={setOpen('delete')}
+      />
+    </>
   )
 }
