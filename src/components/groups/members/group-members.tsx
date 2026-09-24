@@ -34,7 +34,7 @@ export function GroupMembers({ group }: { group: Group }) {
               members.map(member => (
                 <SortableTableRow key={member} id={member}>
                   <TableCell className='bg-accent/50 w-0'> {/* w-0 minimises column width */}
-                    <div className='flex pl-1 gap-2 items-center'>
+                    <div className='flex gap-2 items-center'>
                       <MemberActions group={group} member={member} />
                       <span className='mr-2'>
                         {member}
