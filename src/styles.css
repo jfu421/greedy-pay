@@ -118,3 +118,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Applied to <html> briefly while the theme changes, overriding each
+   element's own transition so everything fades in sync. rotate/scale are
+   kept so the theme button's sun/moon icons still spin. */
+@media (prefers-reduced-motion: no-preference) {
+  .theme-transition,
+  .theme-transition *,
+  .theme-transition *::before,
+  .theme-transition *::after {
+    transition-property: color, background-color, border-color, outline-color,
+      text-decoration-color, fill, stroke, box-shadow, rotate, scale !important;
+    /* Set from THEME_TRANSITION_MS in theme-provider.tsx */
+    transition-duration: var(--theme-transition-duration) !important;
+    transition-timing-function: ease-in-out !important;
+    transition-delay: 0s !important;
+  }
+}
