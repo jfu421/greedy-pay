@@ -28,5 +28,5 @@ export function formatPayments(payments: { [payee: string] : number }) {
  */
 export function formatCurrency(amount: number) {
   const dollars = amount / 100
-  return dollars < 0 ? `-$${-dollars.toFixed(2)}` : `$${dollars.toFixed(2)}`
+  return dollars < 0 ? `-$${(-dollars).toFixed(2)}` : `$${dollars.toFixed(2)}`
 }

@@ -8,6 +8,40 @@ interface _Group {
   /** List of names of members of group */
   members: string[]
   items: Item[]
+  /** Decides who pays leftover cents. Created the first time it is needed */
+  seed?: number
+}
+
+/**
+ * Compares strings by UTF-16 code units, like the default Array.sort.
+ * Unlike localeCompare, the order is the same on every device.
+ */
+function compareStrings(a: string, b: string) {
+  return a < b ? -1 : a > b ? 1 : 0
+}
+
+/**
+ * 32-bit FNV-1a hash, followed by MurmurHash3's finaliser so that strings
+ * differing only in their last character still land far apart
+ */
+function hash(str: string) {
+  let h = 0x811c9dc5
+  for (let i = 0; i < str.length; i++) {
+    h = Math.imul(h ^ str.charCodeAt(i), 0x01000193)
+  }
+  h = Math.imul(h ^ (h >>> 16), 0x85ebca6b)
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35)
+  return (h ^ (h >>> 16)) >>> 0
+}
+
+/**
+ * Orders strings pseudo-randomly, but always the same way for a given seed.
+ * Each string's position depends only on itself and the seed, so renaming
+ * one does not move the others relative to each other
+ */
+function compareBySeed(seed: number) {
+  return (a: string, b: string) =>
+    hash(`${seed}:${a}`) - hash(`${seed}:${b}`) || compareStrings(a, b)
 }
 
 class Group {
@@ -18,6 +52,8 @@ class Group {
   /** List of names of members of group */
   public readonly members: string[]
   public readonly items: Item[]
+  /** Decides who pays leftover cents. Created the first time it is needed */
+  public seed?: number
 
   private _paymentsRequired?: { [item: string]: { [member: string]: number } }
   /**
@@ -31,9 +67,8 @@ class Group {
     if (this._paymentsRequired) return this._paymentsRequired
     // else, need to calculate payments required
     const payments: { [item: string]: { [member: string]: number } } = {}
-    // queue to spread 'suffering' as equally as possible
-    // ensure this is a copy of the members array to prevent mutation
-    const nextToSuffer = this.members.slice()
+    // Items whose total cannot be split evenly, with the cents left over
+    const leftovers: { name: string, participants: string[], remainder: number }[] = []
     for (const item of this.items) {
       if (item.owers && !(item.owers instanceof Array)) {
         // Means manual splitting, assume that it is correct and add to payments
@@ -43,10 +78,25 @@ class Group {
       const total = Object.values(item.owees).reduce((a, b) => a + b, 0)
       const participants = item.owers ?? this.members
       const base = Math.floor(total / participants.length)
-      const amounts = Object.fromEntries(participants.map(m => [m, base]))
+      payments[item.name] = Object.fromEntries(participants.map(m => [m, base]))
       // The minimum amount that cannot be split evenly among all members
-      let totalRemainder = total - (participants.length * base)
-      while (totalRemainder > 0) {
+      const remainder = total - (participants.length * base)
+      if (remainder > 0) leftovers.push({ name: item.name, participants, remainder })
+    }
+    this._paymentsRequired = payments
+    if (leftovers.length === 0) return payments
+
+    // Leftover cents are handed out in an order fixed by the group's random
+    // seed: rearranging rows never changes who pays them, and no name is
+    // favoured across groups the way alphabetical order would be
+    const bySeed = compareBySeed(this.getSeed())
+    // queue to spread 'suffering' as equally as possible
+    // ensure this is a copy of the members array to prevent mutation
+    const nextToSuffer = this.members.slice().sort(bySeed)
+    leftovers.sort((a, b) => bySeed(a.name, b.name))
+    for (const { name, participants, remainder: total } of leftovers) {
+      let remainder = total
+      while (remainder > 0) {
         // get the next person participating in the split that should suffer
         const [sufferer] = nextToSuffer.splice(
           nextToSuffer.findIndex(m => participants.includes(m)),
@@ -55,13 +105,21 @@ class Group {
         // ensure that they suffer less later
         nextToSuffer.push(sufferer)
         // make them suffer and reduce remaining suffering
-        amounts[sufferer]++
-        totalRemainder--
+        payments[name][sufferer]++
+        remainder--
       }
-      payments[item.name] = amounts
     }
-    this._paymentsRequired = payments
     return payments
+  }
+
+  private getSeed() {
+    if (this.seed !== undefined) return this.seed
+    // Groups made before seeds existed (or never needing one yet) have none.
+    // Save one now so the leftover cents stay the same from then on
+    const seed = crypto.getRandomValues(new Uint32Array(1))[0]
+    this.seed = seed
+    db.groups.where('id').equals(this.id).and(g => g.seed === undefined).modify({ seed })
+    return seed
   }
   
   private _balances?: { [member: string]: number }
@@ -87,7 +145,10 @@ class Group {
   private _minimised?: { [payer: string]: { [payee: string] : number } }
   public minimisedTransactions() {
     if (this._minimised) return this._minimised
-    const balances = Object.fromEntries(Object.entries(this.balances()))
+    // sorted so the suggested transactions don't depend on member order
+    const balances = Object.fromEntries(
+      Object.entries(this.balances()).sort(([a], [b]) => compareStrings(a, b))
+    )
     const transactions: {
       [payer: string]: {
         [payee: string] : number
@@ -153,6 +214,7 @@ class Group {
     this.created = groupData.created
     this.members = groupData.members
     this.items = groupData.items
+    this.seed = groupData.seed
   }
 
   /**
@@ -168,6 +230,7 @@ class Group {
       created: this.created,
       members: this.members,
       items: this.items,
+      seed: this.seed,
     }
   }
 }
