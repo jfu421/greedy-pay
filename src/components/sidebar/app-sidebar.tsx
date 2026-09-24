@@ -1,7 +1,6 @@
 import { GroupList } from '@/components/groups/list/group-list'
 import { ImportGroupButton } from '@/components/groups/list/import-group-btn'
 import { NewGroupButton } from '@/components/groups/list/new-group-btn'
-import { AppLogo } from '@/components/ui/app-logo'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarTrigger, useSidebar } from '@/components/ui/sidebar'
 import { SettingsButton } from './settings-button'
 import { ThemeButton } from './theme-button'
@@ -38,9 +37,6 @@ export function AppSidebar() {
         <div className='flex gap-2'>
           <ThemeButton />
           <SettingsButton />
-          <a href='/' className='ml-auto cursor-pointer'>
-            <AppLogo className='size-8'/>
-          </a>
         </div>
       </SidebarFooter>
       <AppSidebarClose />

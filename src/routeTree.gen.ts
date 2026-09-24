@@ -9,17 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as GroupIdRouteImport } from './routes/$groupId'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GroupIdRouteImport } from './routes/$groupId'
 
-const GroupIdRoute = GroupIdRouteImport.update({
-  id: '/$groupId',
-  path: '/$groupId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GroupIdRoute = GroupIdRouteImport.update({
+  id: '/$groupId',
+  path: '/$groupId',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -51,18 +51,18 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/$groupId': {
-      id: '/$groupId'
-      path: '/$groupId'
-      fullPath: '/$groupId'
-      preLoaderRoute: typeof GroupIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$groupId': {
+      id: '/$groupId'
+      path: '/$groupId'
+      fullPath: '/$groupId'
+      preLoaderRoute: typeof GroupIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
