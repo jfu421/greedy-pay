@@ -7,12 +7,12 @@ import { ThemeButton } from './theme-button'
 
 import db from '@/db'
 
-import { useParams } from '@tanstack/react-router'
+import { useSearch } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 
 export function AppSidebar() {
   const groups = useLiveQuery(() => db.groups.toArray()) || []
-  const { groupId } = useParams({ strict: false })
+  const { groupId } = useSearch({ strict: false })
   return (
     <Sidebar>
       <SidebarHeader className='pt-4'>
@@ -29,7 +29,7 @@ export function AppSidebar() {
       <hr />
       <SidebarContent>
         <div className='mx-2'>
-          <GroupList groups={groups} selected={parseInt(groupId || '-1')} />
+          <GroupList groups={groups} selected={groupId} />
         </div>
       </SidebarContent>
       <hr />
