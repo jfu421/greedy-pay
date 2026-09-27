@@ -16,8 +16,9 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import db from '@/db'
 import { cn } from '@/lib/utils'
+import { IconButton } from '@/components/icon-button'
 
-export function NewGroupButton({ className }: React.ComponentProps<'svg'>) {
+export function NewGroupButton({ className }: React.ComponentProps<'button'>) {
   const [name, setName] = useState('New Group')
   const [desc, setDesc] = useState('')
 
@@ -29,7 +30,9 @@ export function NewGroupButton({ className }: React.ComponentProps<'svg'>) {
   return (
     <Dialog onOpenChange={open => { if(open) reset() }}>
       <DialogTrigger asChild>
-        <Plus className={cn(className, 'hover:text-muted-foreground cursor-pointer my-1')} />
+        <IconButton aria-label='New group' className={cn(className, 'my-1')}>
+          <Plus />
+        </IconButton>
       </DialogTrigger>
       <DialogContent className='sm:max-w-[600px]'>
         <DialogHeader>

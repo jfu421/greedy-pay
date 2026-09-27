@@ -15,16 +15,19 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import db, { type Group } from '@/db'
 import { cn } from '@/lib/utils'
+import { IconButton } from '@/components/icon-button'
 
 export function AddMemberButton({
   className,
   group
-}: React.ComponentProps<'svg'> & { group: Group }) {
+}: React.ComponentProps<'button'> & { group: Group }) {
   const [name, setName] = useState('')
   return (
     <Dialog onOpenChange={open => { if(open) setName('') }}>
       <DialogTrigger asChild>
-        <Plus className={cn(className, 'hover:text-muted-foreground cursor-pointer my-1')} />
+        <IconButton aria-label='Add member' className={cn(className, 'my-1')}>
+          <Plus />
+        </IconButton>
       </DialogTrigger>
       <DialogContent className='sm:max-w-[600px]'>
         <DialogHeader>

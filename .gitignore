@@ -14,6 +14,8 @@ dist
 dist-ssr
 *.local
 
+.claude
+
 # Tanstack route generator
 .tanstack
 # We don't ignore the routeTree .ts file because intellisense needs it

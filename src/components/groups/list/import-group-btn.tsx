@@ -10,18 +10,20 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { DialogDescription } from '@radix-ui/react-dialog'
-import { cn } from '@/lib/utils'
+import { IconButton } from '@/components/icon-button'
 import { Input } from '@/components/ui/input'
 import { useRef } from 'react'
 import { toast } from 'sonner'
 import db from '@/db'
 
-export function ImportGroupButton({ className }: React.ComponentProps<'svg'>) {
+export function ImportGroupButton({ className }: React.ComponentProps<'button'>) {
   const fileRef = useRef<HTMLInputElement>(null)
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Upload className={cn(className, 'hover:text-muted-foreground cursor-pointer')} />
+        <IconButton aria-label='Import group' className={className}>
+          <Upload />
+        </IconButton>
       </DialogTrigger>
       <DialogContent className='sm:max-w-[600px]'>
         <DialogHeader className='min-w-0'>

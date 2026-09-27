@@ -16,17 +16,20 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import db, { type Group } from '@/db'
 import { cn } from '@/lib/utils'
+import { IconButton } from '@/components/icon-button'
 
 export function EditGroupButton({
   group,
   className
-}: React.ComponentProps<'svg'> & { group: Group }) {
+}: React.ComponentProps<'button'> & { group: Group }) {
   const [name, setName] = useState(group.name)
   const [desc, setDesc] = useState(group.description)
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Edit className={cn(className, 'hover:text-muted-foreground cursor-pointer my-1')} />
+        <IconButton aria-label='Edit group' className={cn(className, 'my-1')}>
+          <Edit />
+        </IconButton>
       </DialogTrigger>
       <DialogContent className='sm:max-w-[600px]'>
         <DialogHeader className='min-w-0 overflow-x-clip'>

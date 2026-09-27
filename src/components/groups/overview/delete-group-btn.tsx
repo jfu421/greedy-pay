@@ -13,17 +13,20 @@ import { toast } from 'sonner'
 import db, { type Group } from '@/db'
 import { DialogDescription } from '@radix-ui/react-dialog'
 import { cn } from '@/lib/utils'
+import { IconButton } from '@/components/icon-button'
 import { useNavigate } from '@tanstack/react-router'
 
 export function DeleteGroupButton({
   group,
   className
-}: React.ComponentProps<'svg'> & { group: Group }) {
+}: React.ComponentProps<'button'> & { group: Group }) {
   const nav = useNavigate()
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Trash2 className={cn(className, 'hover:text-muted-foreground cursor-pointer my-1 -translate-y-[0.05rem]')} />
+        <IconButton aria-label='Delete group' className={cn(className, 'my-1 -translate-y-[0.05rem]')}>
+          <Trash2 />
+        </IconButton>
       </DialogTrigger>
       <DialogContent className='sm:max-w-[600px]'>
         <DialogHeader className='min-w-0 overflow-x-clip'>

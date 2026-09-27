@@ -12,15 +12,18 @@ import { Button } from '@/components/ui/button'
 import type { Group } from '@/db'
 import { DialogDescription } from '@radix-ui/react-dialog'
 import { cn } from '@/lib/utils'
+import { IconButton } from '@/components/icon-button'
 
 export function ExportGroupButton({
   group,
   className
-}: React.ComponentProps<'svg'> & { group: Group }) {
+}: React.ComponentProps<'button'> & { group: Group }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Download className={cn(className, 'hover:text-muted-foreground cursor-pointer my-1')} />
+        <IconButton aria-label='Export group' className={cn(className, 'my-1')}>
+          <Download />
+        </IconButton>
       </DialogTrigger>
       <DialogContent className='sm:max-w-[600px]'>
         <DialogHeader className='min-w-0 overflow-x-clip'>
