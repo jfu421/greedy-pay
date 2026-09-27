@@ -31,14 +31,6 @@ export function ItemsTable({ group }: { group: Group }) {
     items => db.groups.update(group.id, { items })
   )
   const columns: ColumnDef<Item>[] = [
-    // {
-    //   id: 'actions',
-    //   header: _ => <TableHead className='bg-accent/50 w-0'></TableHead>, // w-0 minimises column width
-    //   cell: ({ row }) => <TableCell className='bg-accent/50 pl-3'>
-    //     <ItemActions group={group} item={row.original} />
-    //   </TableCell>,
-    //   footer: () => <TableCell className='bg-accent/50' />
-    // },
     {
       accessorKey: 'name',
       header: _ => <TableHead className='bg-accent/50 pr-4 w-0 text-end'>

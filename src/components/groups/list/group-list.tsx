@@ -10,7 +10,7 @@ export function GroupList({ groups, selected }: { groups: Group[], selected?: nu
         groups.map((group, index) => (
           <li key={group.id}
             className={cn(
-              'p-2 cursor-pointer hover:bg-accent-foreground/8 active:bg-accent-foreground/12',
+              'p-2 cursor-pointer hover:bg-accent-foreground/8 active:bg-accent-foreground/12 transition-colors',
               index > 0 ? 'border-t' : '',
               group.id === selected ? 'bg-accent-foreground/8' : ''
             )}
