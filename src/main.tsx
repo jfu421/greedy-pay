@@ -12,7 +12,7 @@ const router = createRouter({
   routeTree,
   defaultPreload: 'intent',
   context: { auth: undefined! },
-  basepath: '/greedy-pay/',
+  basepath: '/',
 })
 
 // Declare the router in the global scope
